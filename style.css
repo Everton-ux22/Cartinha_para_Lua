@@ -1,0 +1,183 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 50%, #f48fb1 100%);
+    font-family: 'Poppins', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow-x: hidden;
+    color: #4a4a4a;
+}
+
+#canvas-particles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 99;
+}
+
+#music-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.8);
+    border: 1px solid #e91e63;
+    color: #e91e63;
+    padding: 8px 16px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 600;
+    z-index: 100;
+    backdrop-filter: blur(5px);
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    max-width: 600px;
+    padding: 20px;
+}
+
+.hidden {
+    display: none !important;
+}
+
+/* ENVELOPE 3D */
+.envelope-wrapper {
+    cursor: pointer;
+    perspective: 1000px;
+}
+
+.envelope {
+    width: 260px;
+    height: 180px;
+    background: #f06292;
+    position: relative;
+    border-radius: 8px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.3s ease;
+}
+
+.envelope:hover {
+    transform: scale(1.04);
+}
+
+.flap {
+    position: absolute;
+    top: 0;
+    width: 0;
+    height: 0;
+    border-left: 130px solid transparent;
+    border-right: 130px solid transparent;
+    border-top: 100px solid #ec407a;
+    transform-origin: top;
+    transition: transform 0.5s ease;
+}
+
+.heart-seal {
+    position: absolute;
+    font-size: 32px;
+    z-index: 10;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+}
+
+.instruction-text {
+    margin-top: 25px;
+    font-size: 1.1rem;
+    color: #880e4f;
+    font-weight: 600;
+    animation: pulse 1.5s infinite;
+}
+
+/* CARTA */
+.letter-card {
+    background: #ffffff;
+    padding: 35px 30px;
+    border-radius: 20px;
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+    width: 100%;
+    border: 2px solid #f8bbd0;
+}
+
+.letter-title {
+    font-family: 'Caveat', cursive;
+    font-size: 2.4rem;
+    color: #c2185b;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.letter-body {
+    font-size: 1.1rem;
+    line-height: 1.8;
+    white-space: pre-wrap;
+    min-height: 150px;
+}
+
+/* PERGUNTA E BOTÕES */
+.question-box {
+    margin-top: 30px;
+    text-align: center;
+    border-top: 1px dashed #f8bbd0;
+    padding-top: 20px;
+}
+
+.question-box h3 {
+    color: #880e4f;
+    margin-bottom: 15px;
+    font-size: 1.2rem;
+}
+
+.button-group {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    position: relative;
+    min-height: 50px;
+}
+
+.btn {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 25px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.btn-yes {
+    background: #e91e63;
+    color: white;
+}
+
+.btn-yes:hover {
+    transform: scale(1.08);
+    background: #c2185b;
+}
+
+.btn-no {
+    background: #e0e0e0;
+    color: #616161;
+    position: absolute;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(0.98); }
+}
