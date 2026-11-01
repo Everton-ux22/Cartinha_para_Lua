@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Para Lua Cristhien💌</title>
+    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 50%, #f48fb1 100%);
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+            color: #4a4a4a;
+        }
+        #canvas-particles {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 99;
+        }
+        #music-toggle {
+            position: fixed; top: 20px; right: 20px;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid #e91e63; color: #e91e63;
+            padding: 8px 16px; border-radius: 20px;
+            cursor: pointer; font-weight: 600; z-index: 100;
+            backdrop-filter: blur(5px);
+        }
+        .container {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            width: 100%; max-width: 600px; padding: 20px;
+        }
+        .hidden { display: none !important; }
+        .envelope-wrapper { cursor: pointer; perspective: 1000px; }
+        .envelope {
+            width: 260px; height: 180px; background: #f06292;
+            position: relative; border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            display: flex; justify-content: center; align-items: center;
+            transition: transform 0.3s ease;
+        }
+        .envelope:hover { transform: scale(1.04); }
+        .flap {
+            position: absolute; top: 0; width: 0; height: 0;
+            border-left: 130px solid transparent; border-right: 130px solid transparent;
+            border-top: 100px solid #ec407a; transform-origin: top;
+        }
+        .heart-seal { position: absolute; font-size: 32px; z-index: 10; }
+        .instruction-text {
+            margin-top: 25px; font-size: 1.1rem; color: #880e4f;
+            font-weight: 600; animation: pulse 1.5s infinite;
+        }
+        .letter-card {
+            background: #ffffff; padding: 35px 30px; border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.1); width: 100%; border: 2px solid #f8bbd0;
+        }
+        .letter-title {
+            font-family: 'Caveat', cursive; font-size: 2.4rem; color: #c2185b;
+            text-align: center; margin-bottom: 20px;
+        }
+        .letter-body { font-size: 1.1rem; line-height: 1.8; white-space: pre-wrap; min-height: 150px; }
+        .question-box {
+            margin-top: 30px; text-align: center; border-top: 1px dashed #f8bbd0; padding-top: 20px;
+        }
+        .question-box h3 { color: #880e4f; margin-bottom: 15px; font-size: 1.2rem; }
+        .button-group { display: flex; justify-content: center; gap: 15px; position: relative; min-height: 50px; }
+        .btn {
+            padding: 12px 24px; border: none; border-radius: 25px;
+            font-size: 1rem; font-weight: 600; cursor: pointer; transition: transform 0.2s;
+        }
+        .btn-yes { background: #e91e63; color: white; }
+        .btn-yes:hover { transform: scale(1.08); background: #c2185b; }
+        .btn-no { background: #e0e0e0; color: #616161; position: absolute; }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(0.98); }
+        }
+    </style>
+</head>
+<body>
+
+    <button id="music-toggle" onclick="toggleAudio()">🎵 Música: Off</button>
+    <canvas id="canvas-particles"></canvas>
+
+    <div class="container" id="screen-envelope">
+        <div class="envelope-wrapper" onclick="abrirCarta()">
+            <div class="envelope">
+                <div class="flap"></div>
+                <div class="pocket"></div>
+                <div class="heart-seal">❤️</div>
+            </div>
+        </div>
+        <p class="instruction-text">Clique no envelope para abrir 💌</p>
+    </div>
+
+    <div class="container hidden" id="screen-letter">
+        <div class="letter-card">
+            <h1 class="letter-title">Para minha irmã de outra mãe ✨</h1>
+            <div class="letter-body" id="typed-text"></div>
+            <div class="question-box hidden" id="question-box">
+                <h3>Promete guardar essa amizade para sempre?</h3>
+                <div class="button-group">
+                    <button class="btn btn-yes" onclick="aceitouAmizade()">Com certeza! 💖</button>
+                    <button class="btn btn-no" id="btn-no" onmouseover="fugirBotao()" onclick="fugirBotao()">Não 😜</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ✏️ ESCREVA SEU TEXTO AQUI ENTRE AS ASPAS:
+        const meuTexto = `Oi, Lua! Bem tu já me conhece e sabe bem que eu não sei escrever cartinha muito menos sei expressar meus sentimentos. Mas aqui vai uma tentativa que muito provavelmente vai ficar uma merda. Quem diria que à dois anos e meio eu iria te conhecer e a gente viraria melhores amigos bem dizer irmãos né, tudo isso por causa da cabacisse de china, em pouco tempo você se tornou uma pessoa muito especial pra mim, conseguiu ser a primeira e creio que a única pessoa de fora da minha turma com quem eu realmente fiz alguma amizade e pensar que no começo eu nem queria falar com você porque você ainda tava com menino china e eu não queria dar uma de intruso nem atrapalhar o entrosamento de vocês, só que a entrosa de vocês não vingou e a gente começou a conversar e acabou criando um laço de amizade fuderoso que eu espero levar pro resto da vida. Só dois anos e meio e parece que a gente se conhece a muito mais tempo gostos musicais que se parecem muito além de que nossas mentes acabam se conectando de uma forma que eu nem sei explicar, só não na política, mas de resto tudo se conecta, nesse meio tempo foram muitas histórias, boas risadas, ótimas conversas, algumas brigas e desentendimentos por besteira, vários esporros que tu me deu por causa de mulher, quase me engoliu várias vezes mas isso que mantém nossa amizade forte e aqui vai um pedido de desculpas meu pois você se desculpou chorando pra mim e eu não respondi no mesmo nivel, com certeza as melhores conversas e os melhores momentos foram dentro do Jardim Brasil 2 ou do príncipe escutando minhas músicas e tu sempre pedindo pra colocar essas fezes que tu escuta. Apesar da gente tá meio afastado agora saiba que eu gosto muito de você, muito mesmo apesar de não falar e não demonstrar muito quero ter você por perto pro resto da vida peço perdão por não saber expressar meus sentimentos. Mas enquanto você falar comigo eu vou responder sempre e com toda certeza eu estarei disponível pra ajudar você no que estiver ao meu alcance, bem acho que é isso, ficou meio paia mas eu já expliquei o motivo no começo, desejo tudo de bom pra você nesse novo ciclo que fala né?           Só tu mesmo pra me fazer escrever uma carta, acho que nunca tinha feito um textinho assim pra ninguém foi a primeira a receber uma cartinha desse imbecil aqui e a primeira que falei sobre os sentimentos sentimentais da amizade. Vou encerrar por aqui, já tô enrolando demais. 
+Te amo Lua 🫶(acho que é a primeira vez que falo isso pra tu, mas é a primeira de muitas)`;
+
+        let indexText = 0;
+        let audioCtx = null;
+        let isPlaying = false;
+        let isAudioInitialized = false;
+
+        function digitarTexto() {
+            const container = document.getElementById('typed-text');
+            if (indexText < meuTexto.length) {
+                container.textContent += meuTexto.charAt(indexText);
+                indexText++;
+                setTimeout(digitarTexto, 40);
+            } else {
+                document.getElementById('question-box').classList.remove('hidden');
+            }
+        }
+
+        function abrirCarta() {
+            iniciarAudio();
+            document.getElementById('screen-envelope').classList.add('hidden');
+            document.getElementById('screen-letter').classList.remove('hidden');
+            digitarTexto();
+        }
+
+        function fugirBotao() {
+            const btnNo = document.getElementById('btn-no');
+            const x = Math.random() * (window.innerWidth - 120);
+            const y = Math.random() * (window.innerHeight - 50);
+            btnNo.style.position = 'fixed';
+            btnNo.style.left = `${x}px`;
+            btnNo.style.top = `${y}px`;
+        }
+
+        function aceitouAmizade() {
+            alert("Sabia que você ia aceitar! 💖✨");
+            dispararParticulas();
+        }
+
+        function iniciarAudio() {
+            if (isAudioInitialized) return;
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                audioCtx = new AudioContext();
+                const notas = [261.63, 329.63, 392.00, 523.25, 392.00, 329.63];
+                let noteIndex = 0;
+
+                setInterval(() => {
+                    if (!isPlaying || !audioCtx) return;
+                    const osc = audioCtx.createOscillator();
+                    const gain = audioCtx.createGain();
+                    osc.type = 'sine';
+                    osc.frequency.value = notas[noteIndex % notas.length];
+                    gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 1.2);
+                    osc.connect(gain);
+                    gain.connect(audioCtx.destination);
+                    osc.start();
+                    osc.stop(audioCtx.currentTime + 1.2);
+                    noteIndex++;
+                }, 600);
+
+                isAudioInitialized = true;
+                isPlaying = true;
+                document.getElementById('music-toggle').innerText = "🎵 Música: On";
+            } catch(e) {
+                console.log("Audio não suportado");
+            }
+        }
+
+        function toggleAudio() {
+            if (!isAudioInitialized) {
+                iniciarAudio();
+                return;
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+                isPlaying = true;
+                document.getElementById('music-toggle').innerText = "🎵 Música: On";
+            } else if (audioCtx.state === 'running') {
+                audioCtx.suspend();
+                isPlaying = false;
+                document.getElementById('music-toggle').innerText = "🎵 Música: Off";
+            }
+        }
+
+        function dispararParticulas() {
+            const canvas = document.getElementById('canvas-particles');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            const particles = Array.from({ length: 50 }, () => ({
+                x: Math.random() * canvas.width,
+                y: -20,
+                size: Math.random() * 20 + 10,
+                speed: Math.random() * 3 + 2,
+                opacity: Math.random()
+            }));
+
+            function render() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach((p) => {
+                    ctx.fillStyle = `rgba(233, 30, 99, ${p.opacity})`;
+                    ctx.font = `${p.size}px serif`;
+                    ctx.fillText('❤️', p.x, p.y);
+                    p.y += p.speed;
+                });
+
+                if (particles.some(p => p.y < canvas.height)) {
+                    requestAnimationFrame(render);
+                }
+            }
+            render();
+        }
+    </script>
+</body>
+</html>
